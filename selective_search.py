@@ -27,7 +27,7 @@ cv2.setNumThreads(4);
 
 #####################################################################
 
-directory_to_cycle = "pedestrain/INRIAPerson/Test/pos/" # edit this
+directory_to_cycle = os.environ['CV_HOME'] + "pedestrian/INRIAPerson/Test/pos/" # edit this
 
 #####################################################################
 
@@ -59,10 +59,10 @@ for filename in sorted(os.listdir(directory_to_cycle)):
         ss.setBaseImage(frame)
 
         # Switch to fast but low recall Selective Search method
-        ss.switchToSelectiveSearchFast()
+        # ss.switchToSelectiveSearchFast()
 
         # Switch to high recall but slow Selective Search method (slower)
-        # ss.switchToSelectiveSearchQuality()
+        ss.switchToSelectiveSearchQuality()
 
         # run selective search segmentation on input image
         rects = ss.process()

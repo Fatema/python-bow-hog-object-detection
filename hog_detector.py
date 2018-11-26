@@ -20,9 +20,9 @@ from sliding_window import *
 
 ################################################################################
 
-directory_to_cycle = "pedestrain/INRIAPerson/Test/pos/";
+directory_to_cycle = os.environ['CV_HOME'] + "pedestrian/INRIAPerson/Test/pos/"
 
-show_scan_window_process = True;
+show_scan_window_process = False
 
 ################################################################################
 
@@ -31,9 +31,9 @@ show_scan_window_process = True;
 try:
     svm = cv2.ml.SVM_load(params.HOG_SVM_PATH)
 except:
-    print("Missing files - SVM!");
-    print("-- have you performed training to produce these files ?");
-    exit();
+    print("Missing files - SVM!")
+    print("-- have you performed training to produce these files ?")
+    exit()
 
 # print some checks
 
@@ -44,12 +44,14 @@ print("svm var count : ", svm.getVarCount())
 
 # process all images in directory (sorted by filename)
 
+# see the detection for a single image
+
 for filename in sorted(os.listdir(directory_to_cycle)):
 
     # if it is a PNG file
 
     if '.png' in filename:
-        print(os.path.join(directory_to_cycle, filename));
+        print(os.path.join(directory_to_cycle, filename))
 
         # read image data
 
@@ -57,7 +59,7 @@ for filename in sorted(os.listdir(directory_to_cycle)):
 
         # make a copy for drawing the output
 
-        output_img = img.copy();
+        output_img = img.copy()
 
         # for a range of different image scales in an image pyramid
 
@@ -85,7 +87,7 @@ for filename in sorted(os.listdir(directory_to_cycle)):
 
             if (show_scan_window_process):
                 cv2.imshow('current scale',rect_img)
-                cv2.waitKey(10);
+                cv2.waitKey(10)
 
             # loop over the sliding window for each layer of the pyramid (re-sized image)
 
@@ -107,7 +109,7 @@ for filename in sorted(os.listdir(directory_to_cycle)):
                     # for each window region get the BoW feature point descriptors
 
                     img_data = ImageData(window)
-                    img_data.compute_hog_descriptor();
+                    img_data.compute_hog_descriptor()
 
                     # generate and classify each window by constructing a BoW
                     # histogram and passing it through the SVM classifier
@@ -122,7 +124,7 @@ for filename in sorted(os.listdir(directory_to_cycle)):
 
                         # if we get a detection, then record it
 
-                        if result[0] == params.DATA_CLASS_NAMES["pedestrain"]:
+                        if result[0] == params.DATA_CLASS_NAMES["pedestrian"]:
 
                             # store rect as (x1, y1) (x2,y2) pair
 
@@ -148,10 +150,10 @@ for filename in sorted(os.listdir(directory_to_cycle)):
         # finally draw all the detection on the original image
 
         for rect in detections:
-            cv2.rectangle(output_img, (rect[0], rect[1]), (rect[2], rect[3]), (0, 0, 255), 2)
+            cv2.rectangle(output_img, (rect[0], rect[1]), (rect[2], rect[3]), (0, 255, 255), 2)
 
         cv2.imshow('detected objects',output_img)
-        key = cv2.waitKey(200) # wait 200ms
+        cv2.waitKey(0) # wait 200ms
         if (key == ord('x')):
             break
 
