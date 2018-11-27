@@ -6,6 +6,8 @@ import numpy as np
 
 
 # Parameters
+from sliding_window import non_max_suppression_fast
+
 BLUR = 21
 MASK_DILATE_ITER = 10
 MASK_ERODE_ITER = 10
@@ -136,17 +138,17 @@ def mask_colour(img, light_colour, dark_colour, remove=True):
 
         cv2.imshow(window_name, mask)
 
-        masked_img = cv2.bitwise_and(hsv_img, img, mask=mask)
+        masked_img = cv2.bitwise_and(img, img, mask=mask)
 
-        cv2.imshow('img', masked_img)
+        cv2.imshow('img1', masked_img)
 
         key = cv2.waitKey()
 
-        if key == ord('x'):
+        if key:
             break
 
     # return the bitwise representation
-    return cv2.cvtColor(masked_img, cv2.COLOR_HSV2BGR)
+    return masked_img
 
 
 def remove_shadows(img):
@@ -174,8 +176,9 @@ def remove_shadows(img):
 
 # segment roads based on the colour grey
 def remove_roads(img):
-    light_grey = [75, 13, 13]
-    dark_grey = [180, 255, 112]
+    # possible parameters [59, 0, 54] [119, 255, 139], [32, 39, 39] [111, 119, 97]
+    light_grey = [59, 0, 54]
+    dark_grey = [119, 255, 139]
     return mask_colour(img, light_grey, dark_grey)
 
 
@@ -214,8 +217,61 @@ def remove_car_front(img, mask):
     return cv2.bitwise_and(img, img, mask=mask)
 
 
+def selective_search(img, ss):
+    ss.setBaseImage(img)
+    ss.switchToSelectiveSearchQuality()
+    rects = ss.process()
+
+    window_name = 'selective search'
+    cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+
+    # number of region proposals to show
+    # 400 seems to be a good number of rectangle to capture all important objects
+    numShowRects = 400
+    cv2.createTrackbar("numShowRects", window_name , numShowRects, 1000, nothing)
+
+    while(True):
+        img_copy = img.copy()
+        numShowRects = cv2.getTrackbarPos("numShowRects", window_name)
+        print(numShowRects)
+        object_rects = []
+        # iterate over all the region proposals
+        for i, rect in enumerate(rects):
+            # draw rectangle for region proposal till numShowRects
+            if (i < numShowRects):
+                x, y, w, h = rect
+                rect_area = w * h
+                if rect_area > 3000 and rect_area < 100000 and h < w:
+                    print('rect size', w * h)
+                    object_rects.append(np.float32([x, y, x + w, y + h]))
+                    # cv2.rectangle(img_copy, (x, y), (x + w, y + h), (0, 255, 0), 1, cv2.LINE_AA)
+            else:
+                break
+
+        # print(rects[1:5])
+        # object_rects = np.asarray(object_rects)
+        # print(object_rects[1:5])
+
+        big_recs = non_max_suppression_fast(np.int32(object_rects), 0.4)
+        # big_recs = cv2.groupRectangles(object_rects, 100)[0]
+
+        for r in big_recs:
+            cv2.rectangle(img_copy, (r[0], r[1]), (r[2], r[3]), (255, 0, 0), 1)
+
+        # display image
+        cv2.imshow(window_name, img_copy)
+
+        key = cv2.waitKey()
+
+        if key == ord('q'):
+            break
+
+
 if __name__ == '__main__':
     directory_to_cycle = os.environ['CV_HOME'] + "TTBB-durham-02-10-17-sub10/left-images"
+    cv2.setUseOptimized(True)
+    cv2.setNumThreads(4)
+    ss = cv2.ximgproc.segmentation.createSelectiveSearchSegmentation()
     for filename in sorted(os.listdir(directory_to_cycle)):
         if '.png' in filename:
             print(os.path.join(directory_to_cycle, filename))
@@ -223,16 +279,19 @@ if __name__ == '__main__':
             # read image data
 
             img = cv2.imread(os.path.join(directory_to_cycle, filename), cv2.IMREAD_COLOR)
+            cv2.imshow('gamma img', adjust_gamma(img, 1.5))
             h, w = img.shape[:2]
             mask = create_car_front_mask(h,w)
             img = remove_car_front(img, mask)
-            img = remove_roads(img)
+            # the order in which the colours are removed affects the general parameter for the following segmentation
             img = remove_trees(img)
-            cv2.imshow('gamma img', adjust_gamma(img, 1.5))
+            img = remove_roads(img)
             img_canny = canny(img,lower_threshold=10, upper_threshold=100, smoothing_neighbourhood=3)
             img_contour = contour_edges(img,lower_threshold=10, upper_threshold=100, smoothing_neighbourhood=3)
 
-            cv2.imshow('img', img)
+            selective_search(img, ss)
+
+            cv2.imshow('img3', img)
             cv2.imshow('canny', img_canny)
             cv2.imshow('contours', img_contour)
 
