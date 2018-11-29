@@ -44,8 +44,8 @@ def main():
 
     print("Computing contoured images...")  # for each training image
     start = cv2.getTickCount()
-    # for img_data in imgs_data:
-    #     img_data.img = contour_edges(img_data.img)
+    for img_data in imgs_data:
+        img_data.img = contour_edges(img_data.img)
         # img_data.img = canny(img_data.img)
     print_duration(start)
 

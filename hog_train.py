@@ -27,7 +27,7 @@ def main():
 
     # N.B. specify data path names in same order as class names (neg, pos)
 
-    paths = [params.DATA_training_path_neg, params.DATA_training_path_pos]
+    paths = [params.DATA_training_path_neg, params.DATA_training_path_pos, params.DATA_training_path_cars]
 
     # build a lisyt of class names automatically from our dictionary of class (name,number) pairs
 
@@ -37,18 +37,20 @@ def main():
     # example image in the data set
     # N.B. specify in same order as class names (neg, pos) - again
 
-    sampling_sizes = [params.DATA_training_sample_count_neg, params.DATA_training_sample_count_pos]
+    sampling_sizes = [params.DATA_training_sample_count_neg, params.DATA_training_sample_count_pos,
+                      params.DATA_training_sample_count_cars]
 
     # do we want to take samples only centric to the example image or ramdonly?
     # No - for background -ve images (first class)
     # Yes - for object samples +ve images (second class)
+    # Yes - for object samples +ve images (third class)
 
-    sample_from_centre = [False, True];
+    sample_from_centre = [False, True, True]
 
     # perform image loading
 
     imgs_data = load_images(paths, class_names, sampling_sizes, sample_from_centre,
-                            params.DATA_WINDOW_OFFSET_FOR_TRAINING_SAMPLES, params.DATA_WINDOW_SIZE);
+                            params.DATA_WINDOW_OFFSET_FOR_TRAINING_SAMPLES, params.DATA_WINDOW_SIZE)
 
     print(("Loaded {} image(s)".format(len(imgs_data))))
     print_duration(start)
@@ -89,7 +91,7 @@ def main():
 
     # get class label for each training image
 
-    class_labels = get_class_labels(imgs_data);
+    class_labels = get_class_labels(imgs_data)
 
     # specify the termination criteria for the SVM training
 
@@ -99,7 +101,7 @@ def main():
     # search over the set of parameters for the chosen kernel and the penalty
     # cost term, C (N.B. trainAuto() syntax is correct as of OpenCV 3.4.x)
 
-    svm.trainAuto(samples, cv2.ml.ROW_SAMPLE, class_labels, kFold = 10, balanced = True);
+    svm.trainAuto(samples, cv2.ml.ROW_SAMPLE, class_labels, kFold = 10, balanced = True)
 
     # save the tained SVM to file so that we can load it again for testing / detection
 
@@ -124,7 +126,7 @@ def main():
 
     print_duration(start)
 
-    print(("Finished training BOW detector. {}".format(format_time(get_elapsed_time(program_start)))))
+    print(("Finished training HOG detector. {}".format(format_time(get_elapsed_time(program_start)))))
 
 ################################################################################
 

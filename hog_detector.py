@@ -22,7 +22,7 @@ from sliding_window import *
 
 directory_to_cycle = os.environ['CV_HOME'] + "pedestrian/INRIAPerson/Test/pos/"
 
-show_scan_window_process = False
+show_scan_window_process = True
 
 ################################################################################
 
@@ -64,7 +64,8 @@ for filename in sorted(os.listdir(directory_to_cycle)):
         # for a range of different image scales in an image pyramid
 
         current_scale = -1
-        detections = []
+        ped_detections = []
+        cars_detections = []
         rescaling_factor = 1.25
 
         ################################ for each re-scale of the image
@@ -138,22 +139,41 @@ for filename in sorted(os.listdir(directory_to_cycle)):
                                 cv2.waitKey(40)
 
                             rect *= (1.0 / current_scale)
-                            detections.append(rect)
+                            ped_detections.append(rect)
+
+                        elif result[0] == params.DATA_CLASS_NAMES["cars"]:
+                            # store rect as (x1, y1) (x2,y2) pair
+
+                            rect = np.float32([x, y, x + window_size[0], y + window_size[1]])
+
+                            # if we want to see progress show each detection, at each scale
+
+                            if (show_scan_window_process):
+                                cv2.rectangle(rect_img, (rect[0], rect[1]), (rect[2], rect[3]), (0, 255, 0), 2)
+                                cv2.imshow('current scale',rect_img)
+                                cv2.waitKey(40)
+
+                            rect *= (1.0 / current_scale)
+                            cars_detections.append(rect)
 
                 ########################################################
 
         # For the overall set of detections (over all scales) perform
         # non maximal suppression (i.e. remove overlapping boxes etc).
 
-        detections = non_max_suppression_fast(np.int32(detections), 0.4)
+        ped_detections = non_max_suppression_fast(np.int32(ped_detections), 0.4)
+        cars_detections = non_max_suppression_fast(np.int32(cars_detections), 0.4)
 
         # finally draw all the detection on the original image
 
-        for rect in detections:
+        for rect in ped_detections:
             cv2.rectangle(output_img, (rect[0], rect[1]), (rect[2], rect[3]), (0, 255, 255), 2)
 
+        for rect in cars_detections:
+            cv2.rectangle(output_img, (rect[0], rect[1]), (rect[2], rect[3]), (0, 255, 0), 2)
+
         cv2.imshow('detected objects',output_img)
-        cv2.waitKey(0) # wait 200ms
+        key = cv2.waitKey(200) # wait 200ms
         if (key == ord('x')):
             break
 
