@@ -15,7 +15,7 @@ import os
 ################################################################################
 # settings for datsets in general
 
-master_path_to_dataset = os.environ['CV_HOME'] + "pedestrian" # ** need to edit this **
+master_path_to_dataset = os.environ['CV_HOME'] + "sub-dataset" # ** need to edit this **
 
 # data location - training examples
 
@@ -52,7 +52,7 @@ DATA_training_sample_count_pos = 5
 
 # number of sample patches to extract from each cars training example
 
-DATA_training_sample_count_cars = 5
+DATA_training_sample_count_cars = 10
 
 # class names - N.B. ordering of 0, 1 for neg/pos = order of paths
 
@@ -66,17 +66,17 @@ DATA_CLASS_NAMES = {
 ################################################################################
 # settings for BOW - Bag of (visual) Word - approaches
 
-BOW_SVM_PATH = "svm_bow_SURF.xml"
-BOW_DICT_PATH = "bow_dictionary_SURF.npy"
+BOW_SVM_PATH = "svm_bow_SURF_3_INTER.xml"
+BOW_DICT_PATH = "bow_dictionary_SURF_3_INTER.npy"
 
 BOW_dictionary_size = 512  # in general, larger = better performance, but potentially slower
-BOW_SVM_kernel = cv2.ml.SVM_RBF # see opencv manual for other options
+BOW_SVM_kernel = cv2.ml.SVM_INTER # see opencv manual for other options
 BOW_SVM_max_training_iterations = 1000 # stop training after max iterations
 
 BOW_clustering_iterations = 30 # reduce to improve speed, reduce quality
 
 BOW_fixed_feature_per_image_to_use = 100 # reduce to improve speed, set to 0 for variable number
-BOW_hessian_threshold_to_use = 100 # reduce to improve speed, set to 0 for variable number
+BOW_hessian_threshold_to_use = 300 # reduce to improve speed, set to 0 for variable number
 
 # specify the type of feature points to use])
 # -- refer to the OpenCV manual for options here, by default this is set to work on
@@ -130,9 +130,9 @@ MATCHER = cv2.FlannBasedMatcher(_index_params, _search_params)
 ################################################################################
 # settings for HOG approaches
 
-HOG_SVM_PATH = "svm_hog_contour.xml"
+HOG_SVM_PATH = "svm_hog_3_INTER.xml"
 
-HOG_SVM_kernel = cv2.ml.SVM_LINEAR # see opencv manual for other options
-HOG_SVM_max_training_iterations = 500 # stop training after max iterations
+HOG_SVM_kernel = cv2.ml.SVM_INTER # see opencv manual for other options
+HOG_SVM_max_training_iterations = 1000 # stop training after max iterations
 
 ################################################################################

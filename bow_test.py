@@ -35,10 +35,12 @@ def main():
 
     print("Loading test data as a batch ...")
 
-    paths = [params.DATA_testing_path_neg, params.DATA_testing_path_pos]
-    use_centre_weighting = [False, False];
+    paths = [params.DATA_testing_path_neg, params.DATA_testing_path_pos, params.DATA_testing_path_cars]
+    use_centre_weighting = [False, False, False]
     class_names = params.DATA_CLASS_NAMES
     imgs_data = load_images(paths, class_names, [0,0], use_centre_weighting)
+
+    [imgs_data.remove(img_data) for img_data in imgs_data if img_data.img.size == 0]
 
     print("Computing descriptors...") # for each testing image
     start = cv2.getTickCount()

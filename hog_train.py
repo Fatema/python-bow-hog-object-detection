@@ -10,7 +10,6 @@
 # Minor portions: based on fork from https://github.com/nextgensparx/PyBOW
 
 ################################################################################
-from img_preprocess import *
 from utils import *
 
 ################################################################################
@@ -55,15 +54,17 @@ def main():
     print(("Loaded {} image(s)".format(len(imgs_data))))
     print_duration(start)
 
+    [imgs_data.remove(img_data) for img_data in imgs_data if img_data.img.size == 0]
+
     ############################################################################
     # postprocessing the images - creating a contoured image or only edges image to only keep dominant edges
 
-    print("Computing contoured images...") # for each training image
-    start = cv2.getTickCount()
-    for img_data in imgs_data:
-        img_data.img = contour_edges(img_data.img)
-        # img_data.img = canny(img_data.img)
-    print_duration(start)
+    # print("Computing contoured images...") # for each training image
+    # start = cv2.getTickCount()
+    # for img_data in imgs_data:
+    #     img_data.img = contour_edges(img_data.img)
+    #     # img_data.img = canny(img_data.img)
+    # print_duration(start)
 
     ############################################################################
     # perform HOG feature extraction

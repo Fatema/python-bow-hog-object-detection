@@ -11,10 +11,6 @@
 
 ################################################################################
 
-import numpy as np
-import cv2
-
-from img_preprocess import *
 from utils import *
 
 ################################################################################
@@ -41,13 +37,6 @@ def main():
     use_centre_weighting = [False, True];
     class_names = params.DATA_CLASS_NAMES
     imgs_data = load_images(paths, class_names, [0,0], use_centre_weighting)
-
-    print("Computing contoured images...")  # for each training image
-    start = cv2.getTickCount()
-    for img_data in imgs_data:
-        img_data.img = contour_edges(img_data.img)
-        # img_data.img = canny(img_data.img)
-    print_duration(start)
 
     print("Computing HOG descriptors...") # for each testing image
     start = cv2.getTickCount()

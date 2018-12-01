@@ -51,7 +51,7 @@ def main():
 
     # N.B. specify data path names in same order as class names (neg, pos)
 
-    paths = [params.DATA_training_path_neg, params.DATA_training_path_pos]
+    paths = [params.DATA_training_path_neg, params.DATA_training_path_pos, params.DATA_training_path_cars]
 
     # build a lisyt of class names automatically from our dictionary of class (name,number) pairs
 
@@ -61,13 +61,13 @@ def main():
     # example image in the data set
     # N.B. specify in same order as class names (neg, pos) - again
 
-    sampling_sizes = [params.DATA_training_sample_count_neg, params.DATA_training_sample_count_pos]
+    sampling_sizes = [params.DATA_training_sample_count_neg, params.DATA_training_sample_count_pos, params.DATA_training_sample_count_cars]
 
     # do we want to take samples only centric to the example image or ramdonly?
     # No - for background -ve images (first class)
     # Yes - for object samples +ve images (second class)
 
-    sample_from_centre = [False, True];
+    sample_from_centre = [False, True, True];
 
     # perform image loading
 
@@ -76,6 +76,10 @@ def main():
 
     print(("Loaded {} image(s)".format(len(imgs_data))))
     print_duration(start)
+
+    [imgs_data.remove(img_data) for img_data in imgs_data if img_data.img.size == 0]
+
+    print(("Loaded {} image(s)".format(len(imgs_data))))
 
     ############################################################################
     # perform bag of visual words feature construction
